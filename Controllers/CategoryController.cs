@@ -31,10 +31,22 @@ namespace Blog.Controllers
         [HttpPost("v1/categories")]
         public async Task<IActionResult> PostAsync([FromBody] Category model, [FromServices] BlogDataContext context)
         {
-            await context.Categories.AddAsync(model);
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.Categories.AddAsync(model);
+                await context.SaveChangesAsync();
 
-            return Created($"v1/categories/{model.Id}", model);
+                return Created($"v1/categories/{model.Id}", model);
+            }  
+            catch (DbUpdateException ex)
+            {
+                return BadRequest("couldnt include the category" + ex);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("could send your request" + e);
+                throw;
+            }            
         }
 
         [HttpPut("v1/categories/{id:int}")]
